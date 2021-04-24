@@ -1,6 +1,7 @@
 import './style/main.css'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
+import { Reflector } from 'three/examples/jsm/objects/Reflector.js'
 /**
  * GUI Controls
  */
@@ -19,13 +20,70 @@ const scene = new THREE.Scene()
 /**
  * Object
  */
-const geometry = new THREE.IcosahedronGeometry(20, 1)
-const material = new THREE.MeshNormalMaterial()
-// Material Props.
-material.wireframe = true
-// Create Mesh & Add To Scene
-const mesh = new THREE.Mesh(geometry, material)
-scene.add(mesh)
+
+const torusGeometry = new THREE.TorusKnotGeometry(0.5, 0.2, 150, 20, 2, 3)
+const torusMaterial = new THREE.MeshNormalMaterial({
+  roughness: 0.01,
+  metalness: 0.2,
+})
+const torus = new THREE.Mesh(torusGeometry, torusMaterial)
+torus.name = 'torus'
+torus.position.y = -0.5
+torus.position.z = -2
+torus.castShadow = true
+torus.receiveShadow = true
+scene.add(torus)
+
+const cylinderGeometry = new THREE.CylinderGeometry(2, 2, 0.1, 50)
+const cylinderMaterial = new THREE.MeshNormalMaterial({
+  roughness: 0.5,
+  metalness: 0.9,
+})
+const cylinder = new THREE.Mesh(cylinderGeometry, cylinderMaterial)
+cylinder.position.z = -2
+cylinder.position.y = -1.5
+cylinder.castShadow = true
+cylinder.receiveShadow = true
+scene.add(cylinder)
+
+const light1 = new THREE.DirectionalLight(0x8800ff)
+light1.position.set(-1, 1.5, -1.5)
+light1.castShadow = true
+light1.shadow.camera.zoom = 4
+scene.add(light1)
+light1.target.position.set(0, 0, -2)
+scene.add(light1.target)
+
+// const helper1 = new THREE.CameraHelper( light.shadow.camera );
+// scene.add( helper1 );
+
+const light2 = new THREE.DirectionalLight(0xff0000)
+light2.position.set(1, 1.5, -2.5)
+light2.castShadow = true
+light2.shadow.camera.zoom = 4
+scene.add(light2)
+light2.target.position.set(0, 0, -2)
+scene.add(light2.target)
+
+const reflector = new Reflector(new THREE.PlaneGeometry(4, 4), {
+  textureWidth: window.innerWidth * window.devicePixelRatio,
+  textureHeight: window.innerHeight * window.devicePixelRatio,
+})
+reflector.position.x = 0
+reflector.position.y = -0.5
+reflector.position.z = -3
+reflector.rotation.y = -Math.PI / 4
+scene.add(reflector)
+
+const frameGeometry = new THREE.BoxGeometry(4.1, 4.1, 0.1)
+const frameMaterial = new THREE.MeshNormalMaterial()
+const frame = new THREE.Mesh(frameGeometry, frameMaterial)
+frame.position.z = -0.07
+frame.castShadow = true
+frame.receiveShadow = true
+reflector.add(frame)
+
+//
 
 /**
  * Sizes
@@ -60,19 +118,18 @@ const camera = new THREE.PerspectiveCamera(
   5000
 )
 camera.position.x = 1
-camera.position.y = 1
+camera.position.y = 10
 camera.position.z = 50
 scene.add(camera)
 
 // Controls
 const controls = new OrbitControls(camera, canvas)
 controls.enableDamping = true
-controls.autoRotate = true
+//controls.autoRotate = true
 // controls.enableZoom = false
 controls.enablePan = false
 controls.dampingFactor = 0.05
-controls.maxDistance = 1000
-controls.minDistance = 30
+controls.maxDistance = 1
 controls.touches = {
   ONE: THREE.TOUCH.ROTATE,
   TWO: THREE.TOUCH.DOLLY_PAN,
@@ -95,9 +152,8 @@ const tick = () => {
   const elapsedTime = clock.getElapsedTime()
 
   //mesh.rotation.y += 0.01 * Math.sin(1)
-  //mesh.rotation.y += 0.01 * Math.sin(1)
-  mesh.rotation.z += 0.01 * Math.sin(1)
-
+  torus.rotation.x = time * 2
+  torus.rotation.y = time * 5
   // Update controls
   controls.update()
   // Render
