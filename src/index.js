@@ -2,6 +2,7 @@ import './style/main.css'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { Reflector } from 'three/examples/jsm/objects/Reflector.js'
+import Stats from 'three/examples/jsm/libs/stats.module.js'
 /**
  * GUI Controls
  */
@@ -134,6 +135,8 @@ controls.touches = {
   ONE: THREE.TOUCH.ROTATE,
   TWO: THREE.TOUCH.DOLLY_PAN,
 }
+const stats = new Stats()
+document.body.appendChild(stats.domElement)
 /**
  * Renderer
  */
@@ -152,13 +155,18 @@ const tick = () => {
   const elapsedTime = clock.getElapsedTime()
 
   //mesh.rotation.y += 0.01 * Math.sin(1)
-  torus.rotation.x = time * 2
-  torus.rotation.y = time * 5
+  torus.rotation.x = elapsedTime
+  torus.rotation.y = elapsedTime
+  stats.begin()
+
+  // monitored code goes here
+
+  stats.end()
   // Update controls
   controls.update()
   // Render
   renderer.render(scene, camera)
-
+  camera.lookAt(scene.position)
   // Call tick again on the next frame
   window.requestAnimationFrame(tick)
 }
